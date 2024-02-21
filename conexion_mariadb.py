@@ -10,3 +10,8 @@ while funcion != 7:
       funciones.listar(db)
       
       funcion=funciones.menu()
+
+   if funcion == 2:
+      funciones.buscar(db)
+
+      funcion=funciones.menu()

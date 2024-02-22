@@ -77,3 +77,31 @@ Comienzo                Liberación              Nombre              Apellidos  
             print(dato[0],"     ",dato[1],"     ",dato[2],"     ",dato[3],"     ",dato[4],"     ",dato[5])
     except:
         print("Error en la consulta")
+
+#3. Busca las versiones lanzadas en un año
+def programadores(db):
+    año=input("Indica el año que quieres buscar: ")
+    sql="select v.codigoversion,pr.nombre,pr.apellido1,pr.apellido2,pr.email,count(*) from versiones v, probadores pr, subsistemas s, usuarios u, perfiles pe where v.codigosubsistema = s.codigosubsistema and s.codigoperfil = pe.codigoperfil and pe.dni = u.dni and u.dni = pr.dni and extract(year from fechacomienzo) = %s group by codigoversion,nombre,apellido1,apellido2,email"%año
+    cursor = db.cursor()
+    try:
+        cursor.execute(sql)
+        datos = cursor.fetchall()
+        print('''
+Versión     Nombre      Apellidos           Email       Cantidad
+=================================================================''')
+        for dato in datos:
+            print(dato[0],"     ",dato[1],"     ",dato[2],"     ",dato[3],"     ",dato[4],"     ",dato[5])
+    except:
+        print("Error en la consulta")
+
+#4. Insertar información en la tabla probadores
+def insertar(db,probador):
+    cursor = db.cursor()
+    sql="insert into probadores values ('%s', '%s', '%s', '%s', '%s', '%s')" % (probador["dni"],probador["nombre"],probador["apellido1"],probador["apellido2"],probador["telefono"],probador["correo"])
+    try:
+        cursor.execute(sql)
+        db.commit()
+        print("Los datos de %s %s %s se han añadido con éxito a la tabla probadores."%(probador["nombre"],probador["apellido1"],probador["apellido2"]))
+    except:
+        print("Error al insertar.")
+        db.rollback()

@@ -15,3 +15,13 @@ while funcion != 7:
       funciones.buscar(db)
 
       funcion=funciones.menu()
+   
+   if funcion == 3:
+      funciones.programadores(db)
+
+      funcion=funciones.menu()
+
+   if funcion == 4:
+      funciones.actualizar(db)
+
+      funcion=funciones.menu()

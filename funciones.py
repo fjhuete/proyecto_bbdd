@@ -59,23 +59,14 @@ Menú
 def listar(db):
     sql="select nombre,apellido1,apellido2,v.codigoversion from programadores p left join versiones v on p.dni = v.dni order by apellido1"
     cursor = db.cursor()
-    try:
-        cursor.execute(sql)
-        datos = cursor.fetchall()
-        nombre=0
-        apellidos=0
-        for dato in datos:
-            if nombre < len(dato[0]):
-                nombre=len(dato[0])
-            if apellidos < len(dato[1])+len(dato[2]):
-                apellidos = len(dato[1])+len(dato[2])
-        print('''
-Nombre'''," "*(nombre-3),"Apellidos"," "*(apellidos-6),"Versión",'''
-''',"="*(6+(nombre-3)+9+(apellidos-6)+7+1))
-        for dato in datos:
-            print(dato[0]," "*(nombre-len(dato[0])+3),dato[1],dato[2]," "*(apellidos-len(dato[1])-len(dato[2])+3),dato[3])
-    except:
-        print("Error en la consulta")
+    cursor.execute(sql)
+    datos = cursor.fetchall()
+    print("+","-"*(8+10+15+8+2),"+")
+    print("| {:<8} {:<10}{:<15} {:>8} |".format("Nombre","Apellidos","","Versión"))
+    print("+","-"*(8+10+15+8+2),"+")
+    for dato in datos:
+        print("| {:<8} {:<10}{:<15} {:>8} |".format(dato[0],dato[1],dato[2],str(dato[3] or "")))
+    print("+","-"*(8+10+15+8+2),"+")
     sql="select * from versiones"
     try:
         cursor.execute(sql)
@@ -90,18 +81,12 @@ def listarOracle(db):
     try:
         cursor.execute(sql)
         datos = cursor.fetchall()
-        nombre=0
-        apellidos=0
+        print("+","-"*(8+10+15+8+2),"+")
+        print("| {:<8} {:<10}{:<15} {:>8} |".format("Nombre","Apellidos","","Versión"))
+        print("+","-"*(8+10+15+8+2),"+")
         for dato in datos:
-            if nombre < len(dato[0]):
-                nombre=len(dato[0])
-            if apellidos < len(dato[1])+len(dato[2]):
-                apellidos = len(dato[1])+len(dato[2])
-        print('''
-Nombre'''," "*(nombre-3),"Apellidos"," "*(apellidos-6),"Versión",'''
-''',"="*(6+(nombre-3)+9+(apellidos-6)+7+1))
-        for dato in datos:
-            print(dato[0]," "*(nombre-len(dato[0])+3),dato[1],dato[2]," "*(apellidos-len(dato[1])-len(dato[2])+3),dato[3])
+            print("| {:<8} {:<10}{:<15} {:>8} |".format(dato[0],dato[1],dato[2],str(dato[3] or "")))
+        print("+","-"*(8+10+15+8+2),"+")
     except:
         print("Error en la consulta")
     sql="select * from versiones"
@@ -123,24 +108,12 @@ def buscar(db):
         if cursor.rowcount==0:
             print("No hay ninguna versión asociada a ese código.")
         else:
-            comienzo=0
-            liberacion=0
-            nombre=0
-            apellidos=0
+            print("+","-"*(22+22+10+10+15+10+4),"+")
+            print("| {:<22} {:<22} {:<10} {:<10}{:<15} {:<10} |".format("Comienzo","Liberación","Nombre","Apellidos","","DNI"))
+            print("+","-"*(22+22+10+10+15+10+4),"+")
             for dato in datos:
-                if comienzo < len(str(dato[0])):
-                    comienzo=len(str(dato[0]))
-                if liberacion < (len(str(dato[1]))):
-                    liberacion = (len(str(dato[1])))
-                if nombre < len (dato[2]):
-                    nombre = len(dato[2])
-                if apellidos < len(dato[3])+len(dato[4]):
-                    apellidos = len(dato[3])+len(dato[4])
-            print('''
-Comienzo'''," "*(comienzo-5),"Liberación"," "*(liberacion-7),"Nombre"," "*(nombre-3),"Apellidos"," "*(apellidos-6),'''DNI
-''',"="*(8+(comienzo-5)+10+(liberacion-7)+6+(nombre-3)+9+(apellidos-6)+3+1+14))
-            for dato in datos:
-                print(str(dato[0])," "*(comienzo-len(str(dato[0]))+3),dato[1]," "*(liberacion-len(str(dato[1]))+3),dato[2]," "*(nombre-len(dato[2])+3),dato[3],dato[4]," "*(apellidos-len(dato[3])-len(dato[4])+3),dato[5])
+                print("| {:<22} {:<22} {:<10} {:<10}{:<15} {:<10} |".format(str(dato[0]),str(dato[1]),dato[2],dato[3],dato[4],dato[5]))
+            print("+","-"*(22+22+10+10+15+10+4),"+")
     except:
         print("Error en la consulta")
 
@@ -155,24 +128,11 @@ def programadores(db):
         if cursor.rowcount==0:
             print("No hay versiones lanzadas en ese año.")
         else:
-            version=0
-            nombre=0
-            apellidos=0
-            email=0
-            for dato in datos:
-                if version < len(dato[0]):
-                    version = len(dato[0])
-                if nombre < len(dato[1]):
-                    nombre = len(dato[1])
-                if apellidos < len(dato[2])+len(dato[3]):
-                    apellidos = len(dato[2])+len(dato[3])
-                if email < len(dato[4]):
-                    email = len(dato[4])
-            print('''
-Versión'''," "*(version-4),"Nombre"," "*(nombre-3),"Apellidos"," "*(apellidos-6),"Email"," "*(email-2),'''Cantidad
-''',"="*(7+(version-4)+6+(nombre-3)+9+(apellidos-6)+5+(email-2)+8+8))
-            for dato in datos:
-                print(dato[0]," "*(version-len(dato[0])+3),dato[1]," "*(nombre-len(dato[1])+3),dato[2],dato[3]," "*(apellidos-len(dato[2])-len(dato[3])+3),dato[4]," "*(email-len(dato[4])+9),dato[5])
+            print("+","-"*(8+10+10+10+26+9+4),"+")
+            print("| {:<8} {:<10} {:<10}{:<10} {:<26} {:>9} |".format("Versión","Nombre","Apellidos","","Email","Cantidad"))
+            print("+","-"*(8+10+10+10+26+9+4),"+")
+            print("\n".join("| {:<8} {:<10} {:<10}{:<10} {:<26} {:>9} |".format(*dato) for dato in datos))
+            print("+","-"*(8+10+10+10+26+9+4),"+")
     except:
         print("Error en la consulta")
     

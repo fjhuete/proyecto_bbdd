@@ -51,4 +51,8 @@ while funcion != 7:
 
       funcion = funciones.menu()
 
+   else:
+      print("Error. Por favor indica el número de la opción del menú que quieres ejecutar:")
+      funcion = funciones.menu()
+
 funciones.desconexion(db)

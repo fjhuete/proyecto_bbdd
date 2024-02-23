@@ -1,4 +1,4 @@
-import sys, MySQLdb, psycopg2
+import sys, MySQLdb, psycopg2, oracledb
 from datetime import datetime
 
 def conexionMDB(host,usuario,contraseña,nombrebd):
@@ -20,12 +20,24 @@ def conexionPS(host,usuario,contraseña,nombrebd):
 
     return db
 
+def conexionOracle(host,usuario,contraseña):
+    try:
+        oracledb.init_oracle_client() # <-- Thick mode
+        db = oracledb.connect(user=usuario, password=contraseña, host=host)
+    except:
+        print("No se ha podido realizar la conexión a la base de datos.")
+        sys.exit(1)
+
+    return db
+
 def desconexion(db):
     db.close()
 
 
 def menu():
-   funcion=int(input('''
+    while True:
+        try:
+            funcion=int(input('''
 Menú
 ============================================================
 1. Listar las versiones con su programador responsable
@@ -37,7 +49,10 @@ Menú
 7. Salir
                      
 '''))
-   return funcion
+            break
+        except:
+            print("Error. Por favor indica el número de la opción del menú que quieres ejecutar:")
+    return funcion
 
 
 #1. Listar el código de versión y la fecha de liberación de las versiones.
@@ -69,7 +84,33 @@ En total hay %d versiones registradas'''%(cursor.rowcount))
     except:
         print("Error en la consulta")
 
-
+def listarOracle(db):
+    sql="select nombre,apellido1,apellido2,v.codigoversion from programadores p left join versiones v on p.dni = v.dni order by apellido1"
+    cursor = db.cursor()
+    try:
+        cursor.execute(sql)
+        datos = cursor.fetchall()
+        nombre=0
+        apellidos=0
+        for dato in datos:
+            if nombre < len(dato[0]):
+                nombre=len(dato[0])
+            if apellidos < len(dato[1])+len(dato[2]):
+                apellidos = len(dato[1])+len(dato[2])
+        print('''
+Nombre'''," "*(nombre-3),"Apellidos"," "*(apellidos-6),"Versión",'''
+''',"="*(6+(nombre-3)+9+(apellidos-6)+7+1))
+        for dato in datos:
+            print(dato[0]," "*(nombre-len(dato[0])+3),dato[1],dato[2]," "*(apellidos-len(dato[1])-len(dato[2])+3),dato[3])
+    except:
+        print("Error en la consulta")
+    sql="select * from versiones"
+    try:
+        cursor.execute(sql)
+        print('''
+En total hay %d versiones registradas'''%(len(cursor.fetchall())))
+    except:
+        print("Error en la consulta")
 
 #2. Indica una versión y muestra todas sus datos
 def buscar(db):
@@ -142,7 +183,8 @@ def insertar(db,probador):
     try:
         cursor.execute(sql)
         db.commit()
-        print("Los datos de %s %s %s se han añadido con éxito a la tabla probadores."%(probador["nombre"],probador["apellido1"],probador["apellido2"]))
+        print('''Los datos de %s %s %s se han añadido con éxito a la tabla probadores.
+Se ha añadido %d registro.'''%(probador["nombre"],probador["apellido1"],probador["apellido2"],cursor.rowcount))
     except:
         print("Error al insertar.")
         db.rollback()
@@ -160,7 +202,8 @@ def borrarMDB(db,fecha):
             if cursor.rowcount==0:
                 print("No hay versiones anteriores a esa fecha.")
             else:
-                print("Se han borrado con éxito las versiones anteriores al %s"%(fecha))
+                print('''Se han borrado con éxito las versiones anteriores al %s.
+Se han boarrado %d registros.'''%(fecha,cursor.rowcount))
         except:
             print("Error al borrar.")
             db.rollback()
@@ -176,7 +219,8 @@ def borrarPS(db,fecha):
             if cursor.rowcount==0:
                 print("No hay versiones anteriores al %s."%(fecha))
             else:
-                print("Se han borrado con éxito las versiones anteriores al %s"%(fecha))
+                print('''Se han borrado con éxito las versiones anteriores al %s.
+Se han boarrado %d registros.'''%(fecha,cursor.rowcount))
         except:
             print("Error al borrar.")
             db.rollback()
@@ -188,7 +232,8 @@ def actualizar(db,probador):
     try:
         cursor.execute(sql)
         db.commit()
-        print("Información actualizada.")
+        print('''Información actualizada.
+Se ha actualizado %d registro.'''%(cursor.rowcount))
     except:
-        print("Error al insertar.")
+        print("Error al actualizar.")
         db.rollback()
